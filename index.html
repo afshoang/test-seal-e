@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pham Ngoc Hoang</title>
+</head>
+<body>
+    <script>
+        /* 
+            1. Viết chương trình đệ quy tính tổng các số từ 1 đến n, với n là một số cho trước. 
+            n=0 -> 0
+            n=1 -> 1
+            n=3 -> 6
+            n=10 -> 55
+        */
+        function sumN (n) {
+            if (n === 0) return n
+            return n + sumN(n-1)
+        }
+        console.log(sumN(0), 0); // 0
+        console.log(sumN(1), 1) // 1
+        console.log(sumN(3), 6) // 6
+        console.log(sumN(10), 55) // 55
+        // Độ phức tạp: Mỗi phần tử chạy qua ít nhất 1 lần => O(n)
+        
+        /* 
+            2. Cho một dãy số [1, 25, 7, -7, -3, 12, -22, 0]
+                a. Sử dụng JavaScript để sắp xếp dãy số theo thứ tự tăng dần. => Output: [-22, -7, -3, 0, 1, 7, 12, 25]
+                b. Sắp xếp dãy số tăng dần theo giá trị tuyệt đối (trong trường hợp số 2 số bằng nhau 
+                thì số âm được ưu tiên đứng trước) => [0, 1, -3, -7, 7, 12, -22, 25]
+
+            Note: Không sử dụng hàm Sort, Abs có sẵn trong ngôn ngữ lập trình bạn dùng.
+        */
+
+        function merge(arr1, arr2){
+            let results = [];
+            let i = 0;
+            let j = 0;
+            while(i < arr1.length && j < arr2.length){
+                if(arr2[j] > arr1[i]){
+                    results.push(arr1[i]);
+                    i++;
+                } else {
+                    results.push(arr2[j])
+                    j++;
+                }
+            }
+            while(i < arr1.length) {
+                results.push(arr1[i])
+                i++;
+            }
+            while(j < arr2.length) {
+                results.push(arr2[j])
+                j++;
+            }
+            return results;
+        }
+
+        function mergeSort(arr){
+            if(arr.length <= 1) return arr;
+            let mid = Math.floor(arr.length/2);
+            let left = mergeSort(arr.slice(0,mid));
+            let right = mergeSort(arr.slice(mid));
+            return merge(left, right);
+        }
+
+        function absSort (arr) {
+            /* 
+                Input: [1, 25, 7, -7, -3, 12, -22, 0]
+                Ý tưởng: 
+                + Sắp xếp array bằng thuật toán bất kỳ => [-22, -7, -3, 0, 1, 7, 12, 25]
+                + Sắp xếp lại array dựa trên giá trị tuyệt đối (phần tử nhỏ hơn 0 thì nhân với -1):
+                    + 1 array kết quả sau khi đã sắp
+                    + Sử dụng 2 con trỏ, đầu array và cuối array, kiểm tra nếu giá trị tuyệt đối phần tử tại điểm đầu >= giá trị tuyệt đối 
+                    phần tử tại điểm cuối => đẩy phần tử đầu vào array kết quả, 
+                    hoặc ngược lại đối với phần tử cuối
+                    => Output: [25, -22, 12, 7, -7, -3, 1, 0] => cho ra 1 array có giá trị tuyệt đối giảm dần
+                + Đảo ngược array kết quả sẽ cho ra array tăng dần theo giá trị tuyệt đối
+                
+                Độ phức tạp: O(nlogn) do sử dụng merge sort 
+            */
+           const sortedArr = mergeSort(arr, 0, arr.length - 1)
+
+           let start = 0
+           let end = sortedArr.length - 1
+           let result = []
+            while (start <= end) {
+                let absStart = sortedArr[start] >= 0 ? sortedArr[start] : sortedArr[start] * -1
+                let absEnd = sortedArr[end] >= 0 ? sortedArr[end] : sortedArr[end] * -1
+                if (absStart > absEnd) {
+                    result.push(sortedArr[start])
+                    start++
+                } else {
+                    result.push(sortedArr[end])
+                    end--
+                }
+            }
+            return result.reverse()
+        }
+
+        console.log(mergeSort([1, 25, 7, -7, -3, 12, -22, 0]),  [-22, -7, -3, 0, 1, 7, 12, 25]); // [-22, -7, -3, 0, 1, 7, 12, 25]
+        console.log(absSort([1, 25, 7, -7, -3, 12, -22, 0]), [0, 1, -3, -7, 7, 12, -22, 25]);
+        
+        /* 
+            3. Viết hàm sử dụng regex biến đổi url theo định dạng mong muốn. 
+            Hàm này có mục tiêu làm thay đổi kích thước ảnh theo các tỷ lệ đã được định nghĩa trước:
+            Note: Một số đặc điểm của kích thước:
+                - Các định dạng: _100x, _x100, _100x100
+                - Nằm liền kề dấu chấm của phần mở rộng: url_100x.jpg
+        */
+       let tests = [
+            {
+                input: "https://cdn.shopify.com/e.jpg?v=15",
+                output: "https://cdn.shopify.com/e_100x.jpg?v=15",
+                size: "100x"
+            },
+            {
+                input: "https://cdn.shopify.com/e_100x200.jpg?v=15",
+                output: "https://cdn.shopify.com/e_x200.jpg?v=15",
+                size: "x200"
+            },
+            {
+                input: "https://cdn.shopify.com/e-jpg_200x100.jpg?v=15",
+                output: "https://cdn.shopify.com/e-jpg_100x.jpg?v=15",
+                size: "100x"
+            },
+            {
+                input: "https://cdn.shopify.com/100xMacBook.jpg_640x640_3_result_100x.jpg?v=15",
+                output: "https://cdn.shopify.com/100xMacBook.jpg_640x640_3_result_x100.jpg?v=15",
+                size: "x100"
+            },
+            {
+                input: "https://cdn.shopify.com/e-800x600-jpg.jpg?v=15",
+                output: "https://cdn.shopify.com/e-800x600-jpg_100x200.jpg?v=15",
+                size: "100x200"
+            }
+        ]
+
+        function replaceSize (url, sizeToReplace) {
+            const matches = url.match(/(_\d*x\d*\.jpg(?!.*jpg).*)|(\.jpg(?!.*jpg).*)/g);
+            if(!matches){
+                return null
+            } else {
+                const imgSizePattern = /\.jpg(?!.*jpg).*/g
+                const sizeMatch = matches[0].replace(matches[0], `_${sizeToReplace}${matches[0].match(imgSizePattern)[0]}`)
+                return url.replace(matches, sizeMatch)
+            }
+        }
+
+        const result = tests.map(ele => replaceSize(ele.input, ele.size) === ele.output) // [true, true, true, true, true]
+        console.log(result)
+    </script>
+</body>
+</html>
